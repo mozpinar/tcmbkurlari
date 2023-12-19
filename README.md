@@ -6,3 +6,5 @@ TCMB kurları <b>https://www.tcmb.gov.tr/kurlar/today.xml</b> adresinde tutmakta
 Bunun formatı .../kurlar/YYYYMM/DDMMYYYY.xml şeklinde olmalı. 
 İndirilen XML'i kendiniz de çözümleyip bilgileri alabilirsiniz. Sonuçta bildiğimiz XML! Ancak çok daha kolay çözümleyebilmek için ben WSDL indirip ATCMBXml.pas olarak kaydettim ve onu kullanıyorum. Siz de onu kullanabilirsiniz, ya da siz de <b>Import WSDL</b> ile onu indirebilirsiniz.<br>
 Programda JVCL kütüphanesindeki TJvMemoryData bileşeni kullanılmaktadır. Bu nedenle Delphi'nize uygun JVCL kütüphanesini yüklemeniz gerekiyor. Delphiciyseniz zaten gerekli bir kütüphane. <br>
+<href=https://github.com/mozpinar/tcmbkurlari/blob/main/kurlar1.png>
+
