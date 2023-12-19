@@ -39,8 +39,8 @@ type
       var VAccept: Boolean);
     procedure FormCreate(Sender: TObject);
   private
-    { private declarations }
-    TcmbBuf : String;
+    procedure GetFile(const aaddr: String; var astr: String);
+    procedure BufToTable(tar: TDateTime; const aTcmbBuf : string);
   public
   end;
 
@@ -80,49 +80,7 @@ begin
   Handled := True;
 end;
 
-procedure TCurrencyForm.btnTcmbClick(Sender: TObject);
-var
-  T : TDateTime;
-  dow : Integer;
-  buf : TMemoryStream;
-procedure BufToTable(tar : TDateTime);
-var
-  IXmlP : IXMLTarih_DateType;
-  i, stat : Integer;
-  F1, F2, F3, F4 : Extended;
-begin
-  IXmlP := LoadTarih_DateDATA(TcmbBuf);
-
-  TblTemp.EmptyTable;
-  TblTemp.Open;
-  for i:=0 to IXmlP.Count-1 do
-  begin
-    F1 := 0;
-    F2 := 0;
-    F3 := 0;
-    F4 := 0;
-    if IXmlP.Currency[i].ForexBuying<>'' then
-      Val(IXmlP.Currency[i].ForexBuying, F1, stat);
-    if IXmlP.Currency[i].ForexSelling<>'' then
-      Val(IXmlP.Currency[i].ForexSelling, F2, stat);
-    if IXmlP.Currency[i].BanknoteBuying<>'' then
-      Val(IXmlP.Currency[i].BanknoteSelling, F3, stat);
-    if IXmlP.Currency[i].BanknoteSelling<>'' then
-      Val(IXmlP.Currency[i].BanknoteSelling, F4, stat);
-    TblTemp.Append;
-    TblTemp.FieldByName('kod').AsString := IXmlP.Currency[i].CurrencyCode;
-    TblTemp.FieldByName('ad').AsString := IXmlP.Currency[i].CurrencyName;
-    TblTemp.FieldByName('F1').AsFloat := F1;
-    TblTemp.FieldByName('F2').AsFloat := F2;
-    TblTemp.FieldByName('F3').AsFloat := F3;
-    TblTemp.FieldByName('F4').AsFloat := F4;
-    TblTemp.Post;
-  end;
-  TblTemp.First;
-
-end;
-
-procedure GetFile(const aaddr : String;var astr : String);
+procedure TCurrencyForm.GetFile(const aaddr : String;var astr : String);
 var
   ms : TStringStream;
 begin
@@ -137,7 +95,46 @@ begin
   end;
 end;
 
+procedure TCurrencyForm.BufToTable(tar : TDateTime; const aTcmbBuf : string);
+var
+  IXmlP : IXMLTarih_DateType;
+  i, stat : Integer;
+  F1, F2, F3, F4 : Extended;
+begin
+  IXmlP := LoadTarih_DateDATA(aTcmbBuf);
 
+  for i:=0 to IXmlP.Count-1 do
+  begin
+    F1 := 0;
+    F2 := 0;
+    F3 := 0;
+    F4 := 0;
+
+    if IXmlP.Currency[i].ForexBuying<>'' then
+      Val(IXmlP.Currency[i].ForexBuying, F1, stat);
+    if IXmlP.Currency[i].ForexSelling<>'' then
+      Val(IXmlP.Currency[i].ForexSelling, F2, stat);
+    if IXmlP.Currency[i].BanknoteBuying<>'' then
+      Val(IXmlP.Currency[i].BanknoteSelling, F3, stat);
+    if IXmlP.Currency[i].BanknoteSelling<>'' then
+      Val(IXmlP.Currency[i].BanknoteSelling, F4, stat);
+    TblTemp.Append;
+    TblTempkod.AsString := IXmlP.Currency[i].CurrencyCode;
+    TblTempad.AsString := IXmlP.Currency[i].CurrencyName;
+    TblTempF1.AsFloat := F1;
+    TblTempF2.AsFloat := F2;
+    TblTempF3.AsFloat := F3;
+    TblTempF4.AsFloat := F4;
+    TblTemp.Post;
+  end;
+  TblTemp.First;
+
+end;
+
+procedure TCurrencyForm.btnTcmbClick(Sender: TObject);
+var
+  T : TDateTime;
+  sbuf : string;
 var
   bm : TBookmark;
 begin
@@ -160,28 +157,24 @@ begin
     T := T-1;  // TCMB'de bir gün öncenin kurlarýný alýyor.
 
   }
-  buf := TMemoryStream.Create;
+
+  if T = Date then
+    GetFile('https://www.tcmb.gov.tr/kurlar/today.xml', sbuf)
+  else
+    GetFile('https://www.tcmb.gov.tr/kurlar/'+FormatDateTime('yyyymm', T)+'/'+FormatDateTime('ddmmyyyy', T)+'.xml', sbuf);
+
+  TblTemp.EmptyTable;
+  TblTemp.Open;
+
+  bm := tblTemp.GetBookmark;
   try
-
-    if T = Date then
-      GetFile('https://www.tcmb.gov.tr/kurlar/today.xml', TcmbBuf)
-    else
-      GetFile('https://www.tcmb.gov.tr/kurlar/'+FormatDateTime('yyyymm', T)+'/'+FormatDateTime('ddmmyyyy', T)+'.xml', TcmbBuf);
-
-    bm := tblTemp.GetBookmark;
-    try
-      BufToTable(T);
-    finally
-      tblTemp.GotoBookmark(bm);
-      tblTemp.FreeBookmark(bm);
-    end;
-
-    Caption := 'Günlük kurlar ('+ DateToStr(CGun.Date)+')';
-
+    BufToTable(T, sbuf);
   finally
-    buf.Free;
+    tblTemp.GotoBookmark(bm);
+    tblTemp.FreeBookmark(bm);
   end;
 
+  Caption := 'Günlük kurlar ('+ DateToStr(CGun.Date)+')';
 end;
 
 procedure TCurrencyForm.FormCreate(Sender: TObject);
