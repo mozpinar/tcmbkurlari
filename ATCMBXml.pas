@@ -3,8 +3,7 @@
 {                                                                          }
 {                             XML Data Binding                             }
 {                                                                          }
-{ This unit is generated to build TCMB Central Bank Currency prices for    }
-{                        Gözen Accounting System                           }
+{ This unit is generated to build TCMB Central Bank Currency prices        }
 {**************************************************************************}
 
 unit ATCMBXml;
