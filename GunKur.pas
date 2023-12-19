@@ -41,7 +41,6 @@ type
   private
     { private declarations }
     TcmbBuf : String;
-    //TcmbStatus : Integer;
   public
   end;
 
@@ -148,7 +147,7 @@ begin
     Kurlar gün sonunda belli olduðu için Mali iþlerde kullanýrken bir önceki iþ günü
     esas alýnýr. Bu nedenle bu kýsmý kullanmak gerekebilir. Ýstediðinizde burayý açarsanýz
     kur alýnan tarihleri deðiþtirir.
-  }
+
   if DayOfWeek(T) = 1 then
     T := T-3      // Pazartesi kurlarýný bir önceki Cuma'dan alacak
   else
@@ -160,6 +159,7 @@ begin
   else
     T := T-1;  // TCMB'de bir gün öncenin kurlarýný alýyor.
 
+  }
   buf := TMemoryStream.Create;
   try
 
